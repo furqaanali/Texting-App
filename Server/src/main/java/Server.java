@@ -8,10 +8,7 @@ import java.util.function.Consumer;
 
 import javafx.application.Platform;
 import javafx.scene.control.ListView;
-/*
- * Clicker: A: I really get it    B: No idea what you are talking about
- * C: kind of following
- */
+
 
 public class Server{
 
@@ -28,7 +25,6 @@ public class Server{
 		server.start();
 	}
 
-
 	public class TheServer extends Thread{
 
 		public void run() {
@@ -36,16 +32,13 @@ public class Server{
 			try(ServerSocket mysocket = new ServerSocket(5555);){
 				System.out.println("Server is waiting for a client!");
 
-
 				while(true) {
 
 					ClientThread c = new ClientThread(mysocket.accept(), count);
 					callback.accept("client has connected to server: " + "client #" + count);
 					clients.add(c);
 					c.start();
-
 					count++;
-
 				}
 			}//end of try
 			catch(Exception e) {
@@ -53,7 +46,6 @@ public class Server{
 			}
 		}//end of while
 	}
-
 
 	class ClientThread extends Thread{
 
@@ -68,11 +60,12 @@ public class Server{
 			this.count = count;
 		}
 
-		public void updateClients(String message) {
+		public void updateClients(Info data) {
 			for(int i = 0; i < clients.size(); i++) {
 				ClientThread t = clients.get(i);
 				try {
-					t.out.writeObject(message);
+					t.out.writeObject(data);
+					t.out.reset();
 				}
 				catch(Exception e) {}
 			}
@@ -89,24 +82,26 @@ public class Server{
 				System.out.println("Streams not open");
 			}
 
-			updateClients("new client on server: client #"+count);
+			updateClients(new Info(null, "new client on server: client #"+count, null));
 
 			while(true) {
 				try {
-					String data = in.readObject().toString();
-					callback.accept("client: " + count + " sent: " + data);
-					updateClients("client #"+count+" said: "+data);
+					Info data = (Info) in.readObject();
+					callback.accept("client: " + count + " sent: " + data.message);
+					data.display();
 
+					if (data.action.equals("Send Message"))
+						data.action = "Update Chatbox";
+
+					updateClients(data);
 				}
 				catch(Exception e) {
-					callback.accept("OOOOPPs...Something wrong with the socket from client: " + count + "....closing down!");
-					updateClients("Client #"+count+" has left the server!");
+					callback.accept("client " + count + " closing down!");
 					clients.remove(this);
 					break;
 				}
 			}
 		}//end of run
-
 
 	}//end of client thread
 }

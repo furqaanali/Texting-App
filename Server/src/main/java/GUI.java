@@ -20,13 +20,9 @@ import javafx.stage.WindowEvent;
 public class GUI extends Application{
 
 
-	TextField s1,s2,s3,s4, c1;
-	Button serverChoice,b1;
+	TextField c1;
+	Button b1;
 	HashMap<String, Scene> sceneMap;
-	GridPane grid;
-	HBox buttonBox;
-	Scene startScene;
-	BorderPane startPane;
 	Server serverConnection;
 
 	ListView<String> listItems, listItems2;
@@ -40,30 +36,7 @@ public class GUI extends Application{
 	@Override
 	public void start(Stage primaryStage) throws Exception {
 		// TODO Auto-generated method stub
-		primaryStage.setTitle("The Networked Client/Server GUI Example");
-
-		this.serverChoice = new Button("Server");
-		this.serverChoice.setStyle("-fx-pref-width: 300px");
-		this.serverChoice.setStyle("-fx-pref-height: 300px");
-
-		this.serverChoice.setOnAction(e->{ primaryStage.setScene(sceneMap.get("server"));
-			primaryStage.setTitle("This is the Server");
-			serverConnection = new Server(data -> {
-				Platform.runLater(()->{
-					listItems.getItems().add(data.toString());
-				});
-
-			});
-
-		});
-
-
-		this.buttonBox = new HBox(400, serverChoice);
-		startPane = new BorderPane();
-		startPane.setPadding(new Insets(70));
-		startPane.setCenter(buttonBox);
-
-		startScene = new Scene(startPane, 800,800);
+		primaryStage.setTitle("SERVER");
 
 		listItems = new ListView<String>();
 		listItems2 = new ListView<String>();
@@ -84,8 +57,13 @@ public class GUI extends Application{
 		});
 
 
+		primaryStage.setScene(sceneMap.get("server"));
+		serverConnection = new Server(data -> {
+			Platform.runLater(()->{
+				listItems.getItems().add(data.toString());
+			});
 
-		primaryStage.setScene(startScene);
+		});
 		primaryStage.show();
 
 	}
@@ -99,7 +77,6 @@ public class GUI extends Application{
 		pane.setCenter(listItems);
 
 		return new Scene(pane, 500, 400);
-
 
 	}
 
